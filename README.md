@@ -108,3 +108,39 @@ services:
 ```shell
 docker compose up -d
 ```
+
+## add web app connect with mongodb
+
+This app will directly load data from mongodb
+
+```shell
+mkdir app
+```
+
+[server.js](./app/server.js)
+
+## target 
+
+![deploy-app-with-mongo](deploy-app-with-mongo.png)
+
+## add new container setup on docker-compose.yml
+
+```yaml
+  app:
+    build:
+      context: .
+      dockerfile: ./app/Dockerfile
+      target: prod
+    container_name: web-app
+    image: web-app
+    networks:
+      - mongo-network
+    environment:
+      MONGO_DB_USERNAME: admin
+      MONGO_DB_PWD: supersecret
+    ports:
+      - 3000:3000
+    depends_on:
+      mongodb:
+        condition: service_healthy
+```

@@ -31,4 +31,21 @@ services:
     networks:
       - mongo-network
     ports:
-      - 8081:8081 
+      - 8081:8081
+  app:
+    build:
+      context: .
+      dockerfile: ./app/Dockerfile
+      target: prod
+    container_name: web-app
+    image: web-app
+    networks:
+      - mongo-network
+    environment:
+      MONGO_DB_USERNAME: admin
+      MONGO_DB_PWD: supersecret
+    ports:
+      - 3000:3000
+    depends_on:
+      mongodb:
+        condition: service_healthy

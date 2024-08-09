@@ -17,9 +17,9 @@ jobs:
 
   push:
     runs-on: ubuntu-latest
-    permissions:
-      package: write
-      contents: read
+    # permissions:
+    #   package: write
+    #   contents: read
     
     steps:
       - uses: actions/checkout@v4

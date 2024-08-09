@@ -1,0 +1,42 @@
+name: Image build
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - v*
+  pull_request:
+
+env:
+  IMAGE_NAME: web-app
+  MONGO_DB_ADMIN_PASSWD: ${{ secrets.MONGO_DB_ADMIN_PASSWD }}
+  MONGO_DB_ADMIN_USER: ${{ secrets.MONGO_DB_ADMIN_USER }}
+
+jobs:
+
+  push:
+    runs-on: ubuntu-latest
+    permissions:
+      package: write
+      contents: read
+    
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker compose build app
+      - name: Tag with Image
+        run: docker tag web-app:latest $IMAGE_NAME:$GITHUB_SHA
+      - name: Log in to registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Push to registry
+        run: |
+          IMAGE_ID=ghcr.io/leetcode-golang-classroom/$IMAGE_NAME
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          [ "$VERSION" == "main" ] && VERSION=latest
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION

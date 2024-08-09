@@ -144,3 +144,24 @@ mkdir app
       mongodb:
         condition: service_healthy
 ```
+
+## for security issue: set those secret with environment variable
+
+1. use environment to inject credential data
+```yaml
+  environment:
+    MONGO_INITDB_ROOT_USERNAME: ${MONGO_DB_ADMIN_USER}
+    MONGO_INITDB_ROOT_PASSWORD: ${MONGO_DB_ADMIN_PASSWD}
+```
+
+## use docker compose secret to inject secret
+```yaml
+services:
+  myapp:
+    image: maapp:latest
+    secrets:
+      - my_secret
+secrets:
+  my_secret:
+    file: ./my_secret.txt
+```
